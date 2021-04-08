@@ -27,15 +27,15 @@ def getIpump(p, sol):
 # alphaFvol = p[43]
 
 # hashname=id_generator()
-hashname='3FNS7I'
+hashname='ZTOLB4'
 
 pfname='optsol-'+hashname+'.txt'
 p = genfromtxt(pfname)
 # savetxt(pfname, p)
 originalp = p.copy()
-print('originalp[40] = {}'.format(originalp[40]))
+print(f'{originalp[40] = }')
 
-# Plot Imaxpump varied from 0% to 200%
+# Plot Imaxpump varied from 0% to 220%
 fig = plt.figure(figsize=(15,12))
 figz = plt.figure(figsize=(15,12))
 outer = gridspec.GridSpec(3, 4, wspace=0.3, hspace=0.2)
@@ -44,12 +44,13 @@ for i in range(12):
 		subplot_spec=outer[i], wspace=0.1, hspace=0.1)
 	
 	p = originalp.copy()
-	p[40] = p[40] * i * 0.2
-	print('p[40] = {}'.format(p[40]))
-
+	factor = round(i * 0.2, 1)
+	percentage = int(factor * 100)
+	p[40] = p[40] * factor
+	print(f'{p[40] = }')
 
 	savetxt(pfname, p)
-	command = 'java -cp celltemp.jar findcells.integrateTempCompCell_imi_realclean_NaKpump_rk4 cis_realclean_NaKpump.txt '+pfname+' 5 25 0.1 > sol.txt'
+	command = 'java -cp celltemp.jar findcells.integrateTempCompCell_imi_realclean_NaKpump_rk4 cis_realclean_NaKpump.txt '+pfname+' 5 25 0.05 > sol.txt'
 	os.system(command)
 
 	sol = genfromtxt('sol.txt')
@@ -61,8 +62,8 @@ for i in range(12):
 			# ax = plt.Subplot(fig, inner[j])
 			ax = fig.add_subplot(inner[j])
 			axz = figz.add_subplot(inner[j])
-			ax.set_title('Imaxpump = {} nA'.format(round(p[40], 5)))
-			axz.set_title('Imaxpump = {} nA'.format(round(p[40], 5)))
+			ax.set_title(f'$I_{{max}}$ = {percentage}%')
+			axz.set_title(f'$I_{{max}}$ = {percentage}%')
 			ax.set_xticks([])
 			axz.set_xticks([])
 			ax.set_xlim(0,5)
@@ -92,8 +93,8 @@ for i in range(12):
 			ax2.plot(time,ipump,color='red')
 			axz2.plot(time,ipump,color='red')
 			if i == 3 or i == 7 or i == 11:
-				ax2.set_ylabel('Ipump (nA)')
-				axz2.set_ylabel('Ipump (nA)')
+				ax2.set_ylabel('$I_{{pump}}$ (nA)')
+				axz2.set_ylabel('$I_{{pump}}$ (nA)')
 			if i > 7:
 				ax.set_xlabel('time (sec)')
 				axz.set_xlabel('time (sec)')
@@ -109,7 +110,7 @@ fig.savefig('optsol-'+hashname+'.Imaxpump.png')
 figz.savefig('optsol-'+hashname+'.Imaxpump.zoom.png')
 
 # Plot the optimal parameter set
-print('originalp[40] = {}'.format(originalp[40]))
+print(f'{originalp[40] = }')
 
 p = originalp.copy()
 savetxt(pfname, p)
@@ -122,8 +123,7 @@ time= linspace(0,5,len(sol))
 ipump = getIpump(p,sol)
 
 figure(figsize=(10,8))
-suptitle('realclean-imi-NaKpump -- Imaxpump = {} nA -- '.format(round(p[40], 5))
-	+ pfname)
+suptitle(f'realclean-imi-NaKpump -- $I_{{max}}$ = {p[40]} nA -- ' + pfname)
 subplot(311)
 ylabel('V')
 plot(time,sol[:,0],color='black')
@@ -132,7 +132,7 @@ ylabel('[Na]')
 plot(time,sol[:,-1],color='black')
 ax2 = ax1.twinx()
 ax2.plot(time,ipump,color='red')
-ylabel('Ipump (nA)')
+ylabel('$I_{{pump}}$ (nA)')
 subplot(313)
 ylabel('[Ca]')
 plot(time,sol[:,-2],color='black')
@@ -140,8 +140,7 @@ xlabel('time (sec)')
 savefig('optsol-'+hashname+'.png')
 
 figure(figsize=(10,8))
-suptitle('realclean-imi-NaKpump -- Imaxpump = {} nA -- '.format(round(p[40], 5))
-	+ pfname)
+suptitle(f'realclean-imi-NaKpump -- $I_{{max}}$ = {p[40]} nA -- ' + pfname)
 subplot(311)
 ylabel('V')
 plot(time[time>4],sol[:,0][time>4],color='black')
@@ -153,7 +152,7 @@ plot(time[time>4],sol[:,-1][time>4],color='black')
 plot(time[time>4],p[42]*ones(len(sol))[time>4],color='blue', ls='dashed')
 ax2 = ax1.twinx()
 ax2.plot(time,ipump,color='red')
-ylabel('Ipump (nA)')
+ylabel('$I_{{pump}}$ (nA)')
 xlim(4,5)
 subplot(313)
 ylabel('[Ca]')
