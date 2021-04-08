@@ -27,7 +27,7 @@ def getIpump(p, sol):
 # alphaFvol = p[43]
 
 # hashname=id_generator()
-hashname='0MDLH0'
+hashname='HDC73U'
 
 pfname='optsol-'+hashname+'.txt'
 p = genfromtxt(pfname)
