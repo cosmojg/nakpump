@@ -4,7 +4,7 @@ import numpy as np
 import subprocess
 
 # Specify parameter set
-hashname = '5ISKBL'
+hashname = '0MDLH0'
 
 # Specify colors
 colorwheel = ['#517990','#1f78b4','#608a35','#33a02c','#fb9a99','#e31a1c','#fdbf6f',
