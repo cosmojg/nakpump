@@ -22,7 +22,7 @@ originalp = p.copy()
 print(f'{originalp[40] = }')
 
 # Run the model
-command = 'java -cp celltemp.jar findcells.integrateTempCompCell_imi_realclean_NaKpump_rk4 cis_realclean_NaKpump.txt '+pfname+' 20 25 0.1 > sol.txt'
+command = 'java -cp celltemp.jar findcells.integrateTempCompCell_imi_realclean_NaKpump_rk4 cis_realclean_NaKpump.txt '+pfname+' 20 25 0.05 > sol.txt'
 subprocess.run(command, shell=True)
 sol = np.genfromtxt('sol.txt')
 time = np.linspace(0,20,len(sol))
@@ -56,7 +56,7 @@ for i in range(12):
 
 	# Run the model
 	np.savetxt(pfname, p)
-	command = 'java -cp celltemp.jar findcells.integrateTempCompCell_imi_realclean_NaKpump_rk4 cis_realclean_NaKpump.txt '+pfname+' 20 25 0.1 > sol.txt'
+	command = 'java -cp celltemp.jar findcells.integrateTempCompCell_imi_realclean_NaKpump_rk4 cis_realclean_NaKpump.txt '+pfname+' 20 25 0.05 > sol.txt'
 	subprocess.run(command, shell=True)
 	sol = np.genfromtxt('sol.txt')
 	time = np.linspace(0,20,len(sol))
