@@ -4,7 +4,7 @@ import numpy as np
 import subprocess
 
 # Specify parameter set
-hashname = '5ISKBL'
+hashname = '0MDLH0'
 
 # Calculate pump current
 def getipump(p, sol):
@@ -43,8 +43,6 @@ fig.savefig('control-'+hashname+'.png')
 # Plot I_max varied from 0% to 220% of control
 fig, axs = plt.subplots(12, sharex=True, figsize=(9,12))
 for i in range(12):
-	if i <11:
-		break
 	# Vary I_max by specified factor
 	p = originalp.copy()
 	factor = round(i * 0.2, 1)
@@ -69,9 +67,11 @@ for i in range(12):
 		axs[i].set_facecolor('#1b9e7780')
 	
 	if i == 11:
-		axs[i].vlines(19.9, -50, 0, lw=5, color='white', edgecolor='black', zorder=10)
-		axs[i].plot(19.9, -50, 's', color='#d95f02', edgecolor='black', zorder=11)
-		axs[i].plot(19.9, 0, 's', color='#7570b3', edgecolor='black', zorder=11)
+		axs[i].vlines(19.9, -50, 0, color='#808080', lw=4, zorder=10)
+		axs[i].plot(19.9, -50, 's', color='#d95f02', markeredgecolor='black', markersize=8,
+					zorder=11)
+		axs[i].plot(19.9, 0, 's', color='#7570b3', markeredgecolor='black', markersize=8,
+					zorder=11)
 		bboxprops = dict(boxstyle='square', facecolor='white', edgecolor='black')
 		axs[i].annotate('-50 mV', xy=(19.9, -50), xytext=(9, 0), color='#d95f02',
 						textcoords='offset points', horizontalalignment='left', weight='bold',
