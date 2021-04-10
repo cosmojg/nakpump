@@ -4,11 +4,7 @@ import numpy as np
 import subprocess
 
 # Specify parameter set
-hashname = '0MDLH0'
-
-# Specify colors
-colorwheel = ['#517990','#1f78b4','#608a35','#33a02c','#fb9a99','#e31a1c','#fdbf6f',
-				'#ff7f00','#756081','#6a3d9a','#777711','#b15928']
+hashname = '5ISKBL'
 
 # Calculate pump current
 def getipump(p, sol):
@@ -47,6 +43,8 @@ fig.savefig('control-'+hashname+'.png')
 # Plot I_max varied from 0% to 220% of control
 fig, axs = plt.subplots(12, sharex=True, figsize=(9,12))
 for i in range(12):
+	if i <11:
+		break
 	# Vary I_max by specified factor
 	p = originalp.copy()
 	factor = round(i * 0.2, 1)
@@ -62,23 +60,30 @@ for i in range(12):
 	time = np.linspace(0,20,len(sol))
 
 	# Plot the varied parameter set
-	axs[i].plot(time[time>19], sol[:,0][time>19], color=colorwheel[i])
-	axs[i].plot(time[time>19], -50*np.ones(len(sol))[time>19], color='black', ls='dashed')
-	axs[i].vlines(19.9, -50, 0, lw=5, color='black')
-	axs[i].plot(19.9, -50, 's', color='#1b9e77')
-	axs[i].plot(19.9, 0, 's', color='#d95f02')
-	bboxprops = dict(boxstyle='square', facecolor='white', edgecolor='black')
-	axs[i].annotate('-50 mV', xy=(19.9, -50), xytext=(9, 0), color='#1b9e77',
-					textcoords='offset points', horizontalalignment='left', weight='bold',
-					verticalalignment='center', annotation_clip=False, bbox=bboxprops)
-	axs[i].annotate('0 mV', xy=(19.9, 0), xytext=(19.5, 0), color='#d95f02',
-					textcoords='offset points', horizontalalignment='left', weight='bold',
-					verticalalignment='center', annotation_clip=False, bbox=bboxprops)
-	axs[i].set_xlim(19,20)
+	axs[i].plot(time[time>19], sol[:,0][time>19], color='black')
+	axs[i].plot(time[time>19], -50*np.ones(len(sol))[time>19], color='#d95f02', ls='dashed')
 	axs[i].tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
 	if i != 5:
 		axs[i].set_frame_on(False)
-	axs[i].set_ylabel(f'{percentage}%', fontsize=15, color=colorwheel[i])
+	else:
+		axs[i].set_facecolor('#1b9e7780')
+	
+	if i == 11:
+		axs[i].vlines(19.9, -50, 0, lw=5, color='white', edgecolor='black', zorder=10)
+		axs[i].plot(19.9, -50, 's', color='#d95f02', edgecolor='black', zorder=11)
+		axs[i].plot(19.9, 0, 's', color='#7570b3', edgecolor='black', zorder=11)
+		bboxprops = dict(boxstyle='square', facecolor='white', edgecolor='black')
+		axs[i].annotate('-50 mV', xy=(19.9, -50), xytext=(9, 0), color='#d95f02',
+						textcoords='offset points', horizontalalignment='left', weight='bold',
+						verticalalignment='center', annotation_clip=False, bbox=bboxprops)
+		axs[i].annotate('0 mV', xy=(19.9, 0), xytext=(19.5, 0), color='#7570b3',
+						textcoords='offset points', horizontalalignment='left', weight='bold',
+						verticalalignment='center', annotation_clip=False, bbox=bboxprops)
+		axs[i].tick_params(bottom=True, labelbottom=True, labelsize=15)
+		axs[i].set_xlabel('Time (s)', fontsize=15)
+
+	axs[i].set_ylabel(f'{percentage}%', fontsize=15, color='black')
+	axs[i].set_xlim(19,20)
 
 fig.suptitle(f'IMI-NaKpump | {pfname} | $I_{{max}}$ = 0% to 220%', fontsize=15)
 fig.savefig('varied-I_max-'+hashname+'.png')
