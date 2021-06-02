@@ -1,3 +1,4 @@
+#%%
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import numpy as np
@@ -26,6 +27,7 @@ sol = np.genfromtxt('sol.txt')
 time = np.linspace(0,20,len(sol))
 ipump = getipump(p,sol)
 
+#%%
 # Plot the control parameter set
 fig, axs = plt.subplots(3, sharex=True, figsize=(6,8))
 axs[0].plot(time[time>19],sol[:,0][time>19],color='#1b9e77')
@@ -41,6 +43,11 @@ axs[2].set_ylabel('$I_{pump}$ (nA)', fontsize=12)
 axs[2].tick_params(labelsize=12)
 fig.suptitle(f'IMI-NaKpump | {pfname} | $I_{{max}}$ = {p[40]} nA', fontsize=12)
 fig.savefig('control-'+hashname+'.png')
+
+# Restore control parameter set
+p = originalp.copy()
+np.savetxt(pfname, p)
+#%%
 
 # Plot I_max varied from 0% to 220% of control
 fig, axs = plt.subplots(12, sharex=True, figsize=(9,12))
@@ -90,12 +97,17 @@ for i in range(12):
 fig.suptitle(f'IMI-NaKpump | {pfname} | $I_{{max}}$ = 0% to 220%', fontsize=15)
 fig.savefig('varied-I_max-'+hashname+'.png')
 
-# Plot Na_is varied from 0% to 220% of control
+# Restore control parameter set
+p = originalp.copy()
+np.savetxt(pfname, p)
+#%%
+
+# Plot Na_is varied from -400% to 480% of control
 fig, axs = plt.subplots(12, sharex=True, figsize=(9,12))
 for i in range(12):
 	# Vary Na_is by specified factor
 	p = originalp.copy()
-	factor = round(i * 0.2, 1)
+	factor = round((i - 5) * 0.8, 1)
 	percentage = int(factor * 100)
 	p[41] = p[41] * factor
 	print(f'{p[41] = }')
@@ -135,15 +147,20 @@ for i in range(12):
 	axs[i].set_ylabel(f'{percentage}%', fontsize=15, color='black')
 	axs[i].set_xlim(19,20)
 
-fig.suptitle(f'IMI-NaKpump | {pfname} | $[Na]_{{is}}$ = 0% to 220%', fontsize=15)
+fig.suptitle(f'IMI-NaKpump | {pfname} | $[Na]_{{is}}$ = -400% to 480%', fontsize=15)
 fig.savefig('varied-Na_is-'+hashname+'.png')
 
-# Plot Na_ih varied from 0% to 220% of control
+# Restore control parameter set
+p = originalp.copy()
+np.savetxt(pfname, p)
+#%%
+
+# Plot Na_ih varied from -400% to 480% of control
 fig, axs = plt.subplots(12, sharex=True, figsize=(9,12))
 for i in range(12):
 	# Vary Na_ih by specified factor
 	p = originalp.copy()
-	factor = round(i * 0.2, 1)
+	factor = round((i - 5) * 0.8, 1)
 	percentage = int(factor * 100)
 	p[42] = p[42] * factor
 	print(f'{p[42] = }')
@@ -183,9 +200,10 @@ for i in range(12):
 	axs[i].set_ylabel(f'{percentage}%', fontsize=15, color='black')
 	axs[i].set_xlim(19,20)
 
-fig.suptitle(f'IMI-NaKpump | {pfname} | $[Na]_{{ih}}$ = 0% to 220%', fontsize=15)
+fig.suptitle(f'IMI-NaKpump | {pfname} | $[Na]_{{ih}}$ = -400% to 480%', fontsize=15)
 fig.savefig('varied-Na_ih-'+hashname+'.png')
 
 # Restore control parameter set
 p = originalp.copy()
 np.savetxt(pfname, p)
+# %%
