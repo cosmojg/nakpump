@@ -155,12 +155,12 @@ p = originalp.copy()
 np.savetxt(pfname, p)
 #%%
 
-# Plot Na_ih varied from -400% to 480% of control
+# Plot Na_ih varied from -1500% to 1800% of control
 fig, axs = plt.subplots(12, sharex=True, figsize=(9,12))
 for i in range(12):
 	# Vary Na_ih by specified factor
 	p = originalp.copy()
-	factor = round((i - 5) * 0.8, 1)
+	factor = round((i - 5) * 3, 1)
 	percentage = int(factor * 100)
 	p[42] = p[42] * factor
 	print(f'{p[42] = }')
@@ -200,7 +200,7 @@ for i in range(12):
 	axs[i].set_ylabel(f'{percentage}%', fontsize=15, color='black')
 	axs[i].set_xlim(19,20)
 
-fig.suptitle(f'IMI-NaKpump | {pfname} | $[Na]_{{ih}}$ = -400% to 480%', fontsize=15)
+fig.suptitle(f'IMI-NaKpump | {pfname} | $[Na]_{{ih}}$ = -1500% to 1800%', fontsize=15)
 fig.savefig('varied-Na_ih-'+hashname+'.png')
 
 # Restore control parameter set
