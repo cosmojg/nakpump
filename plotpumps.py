@@ -155,12 +155,12 @@ p = originalp.copy()
 np.savetxt(pfname, p)
 #%%
 
-# Plot Na_ih varied from -1500% to 1800% of control
+# Plot Na_ih varied from 6504% to 7516% of control
 fig, axs = plt.subplots(12, sharex=True, figsize=(9,12))
 for i in range(12):
 	# Vary Na_ih by specified factor
 	p = originalp.copy()
-	factor = round((i - 5) * 3, 1)
+	factor = round((i + 70.7) * 0.92, 2)
 	percentage = int(factor * 100)
 	p[42] = p[42] * factor
 	print(f'{p[42] = }')
@@ -174,12 +174,14 @@ for i in range(12):
 
 	# Plot the varied parameter set
 	axs[i].plot(time[time>19], sol[:,0][time>19], color='black')
+	axs[i].twinx().plot(time[time>19], sol[:,-1][time>19], color='red')
+	axs[i].twinx().plot(time[time>19], getipump(p,sol)[time>19], color='blue')
 	axs[i].plot(time[time>19], -50*np.ones(len(sol))[time>19], color='#d95f02', ls='dashed')
 	axs[i].tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
-	if i != 5:
-		axs[i].set_frame_on(False)
-	else:
-		axs[i].set_facecolor('#1b9e7780')
+	# if i != 5:
+	axs[i].set_frame_on(False)
+	# else:
+		# axs[i].set_facecolor('#1b9e7780')
 	
 	if i == 11:
 		axs[i].vlines(19.9, -50, 0, color='#808080', lw=4, zorder=10)
@@ -200,7 +202,7 @@ for i in range(12):
 	axs[i].set_ylabel(f'{percentage}%', fontsize=15, color='black')
 	axs[i].set_xlim(19,20)
 
-fig.suptitle(f'IMI-NaKpump | {pfname} | $[Na]_{{ih}}$ = -1500% to 1800%', fontsize=15)
+fig.suptitle(f'IMI-NaKpump | {pfname} | $[Na]_{{ih}}$ = 6504% to 7516%', fontsize=15)
 fig.savefig('varied-Na_ih-'+hashname+'.png')
 
 # Restore control parameter set
