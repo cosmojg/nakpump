@@ -1,11 +1,17 @@
 #%%
+import datetime as dt
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import numpy as np
+import pathlib
+import shutil
 import subprocess
 
+# Time the script
+starttime = dt.datetime.now()
+
 # Specify parameter set
-hashname = '5ISKBL'
+hashname = '0MDLH0'
 
 # Calculate pump current
 def getipump(p, sol):
@@ -13,7 +19,7 @@ def getipump(p, sol):
 	return ipump
 
 # Load the model
-pfname='optsol-'+hashname+'.txt'
+pfname = f'optsol-{hashname}.txt'
 p = np.genfromtxt(pfname)
 originalp = p.copy()
 print(f'{originalp[40] = }')
@@ -21,11 +27,14 @@ print(f'{originalp[41] = }')
 print(f'{originalp[42] = }')
 
 # Run the model
-command = 'java -cp celltemp.jar findcells.integrateTempCompCell_imi_realclean_NaKpump_rk4 cis_realclean_NaKpump.txt '+pfname+' 20 25 0.05 > sol.txt'
-subprocess.run(command, shell=True)
-sol = np.genfromtxt('sol.txt')
+command = f'java -cp celltemp.jar findcells.integrateTempCompCell_imi_realclean_NaKpump_rk4 cis_realclean_NaKpump.txt {pfname} 20 25 0.05 > sol.txt'
+if pathlib.Path(f'cache/{hashname}.sol.txt').exists():
+	sol = np.genfromtxt(f'cache/{hashname}.sol.txt')
+else:
+	subprocess.run(command, shell=True)
+	shutil.copy('sol.txt', f'cache/{hashname}.sol.txt')
+	sol = np.genfromtxt(f'cache/{hashname}.sol.txt')
 time = np.linspace(0,20,len(sol))
-ipump = getipump(p,sol)
 
 #%%
 # Plot the control parameter set
@@ -37,7 +46,7 @@ axs[0].tick_params(labelsize=12)
 axs[1].plot(time[time>19],sol[:,-1][time>19],color='#d95f02')
 axs[1].set_ylabel('[$Na^+$] (mmol/L)', fontsize=12)
 axs[1].tick_params(labelsize=12)
-axs[2].plot(time[time>19],ipump[time>19],color='#7570b3')
+axs[2].plot(time[time>19],getipump(p,sol)[time>19],color='#7570b3')
 axs[2].set_xlabel('Time (s)', fontsize=12)
 axs[2].set_ylabel('$I_{pump}$ (nA)', fontsize=12)
 axs[2].tick_params(labelsize=12)
@@ -47,8 +56,8 @@ fig.savefig('control-'+hashname+'.png')
 # Restore control parameter set
 p = originalp.copy()
 np.savetxt(pfname, p)
-#%%
 
+#%%
 # Plot I_max varied from 0% to 220% of control
 fig, axs = plt.subplots(12, sharex=True, figsize=(9,12))
 for i in range(12):
@@ -60,10 +69,13 @@ for i in range(12):
 	print(f'{p[40] = }')
 
 	# Run the model
-	np.savetxt(pfname, p)
-	command = 'java -cp celltemp.jar findcells.integrateTempCompCell_imi_realclean_NaKpump_rk4 cis_realclean_NaKpump.txt '+pfname+' 20 25 0.05 > sol.txt'
-	subprocess.run(command, shell=True)
-	sol = np.genfromtxt('sol.txt')
+	if pathlib.Path(f'cache/{hashname}.I_max.{factor}.sol.txt').exists():
+		sol = np.genfromtxt(f'cache/{hashname}.I_max.{factor}.sol.txt')
+	else:
+		np.savetxt(pfname, p)
+		subprocess.run(command, shell=True)
+		shutil.copy('sol.txt', f'cache/{hashname}.I_max.{factor}.sol.txt')
+		sol = np.genfromtxt(f'cache/{hashname}.I_max.{factor}.sol.txt')
 	time = np.linspace(0,20,len(sol))
 
 	# Plot the varied parameter set
@@ -100,8 +112,8 @@ fig.savefig('varied-I_max-'+hashname+'.png')
 # Restore control parameter set
 p = originalp.copy()
 np.savetxt(pfname, p)
-#%%
 
+#%%
 # Plot Na_is varied from -400% to 480% of control
 fig, axs = plt.subplots(12, sharex=True, figsize=(9,12))
 for i in range(12):
@@ -113,10 +125,13 @@ for i in range(12):
 	print(f'{p[41] = }')
 
 	# Run the model
-	np.savetxt(pfname, p)
-	command = 'java -cp celltemp.jar findcells.integrateTempCompCell_imi_realclean_NaKpump_rk4 cis_realclean_NaKpump.txt '+pfname+' 20 25 0.05 > sol.txt'
-	subprocess.run(command, shell=True)
-	sol = np.genfromtxt('sol.txt')
+	if pathlib.Path(f'cache/{hashname}.Na_is.{factor}.sol.txt').exists():
+		sol = np.genfromtxt(f'cache/{hashname}.Na_is.{factor}.sol.txt')
+	else:
+		np.savetxt(pfname, p)
+		subprocess.run(command, shell=True)
+		shutil.copy('sol.txt', f'cache/{hashname}.Na_is.{factor}.sol.txt')
+		sol = np.genfromtxt(f'cache/{hashname}.Na_is.{factor}.sol.txt')
 	time = np.linspace(0,20,len(sol))
 
 	# Plot the varied parameter set
@@ -153,37 +168,53 @@ fig.savefig('varied-Na_is-'+hashname+'.png')
 # Restore control parameter set
 p = originalp.copy()
 np.savetxt(pfname, p)
-#%%
 
+#%%
 # Plot Na_ih varied from 6504% to 7516% of control
-fig, axs = plt.subplots(12, sharex=True, figsize=(9,12))
+fig, axs = plt.subplots(12, sharex=True, sharey=True, figsize=(9,12))
+axsNa = [a.twinx() for a in axs]
+axsI = [a.twinx() for a in axs]
+
 for i in range(12):
+	# Share y axis
+	if i != 0:
+		# axsNa[i].sharey(axsNa[i-1])
+		axsI[i].sharey(axsI[i-1])
+
 	# Vary Na_ih by specified factor
 	p = originalp.copy()
-	factor = round((i + 70.7) * 0.92, 2)
+	factor = round((i + 211) * 0.45, 2)
 	percentage = int(factor * 100)
 	p[42] = p[42] * factor
 	print(f'{p[42] = }')
 
 	# Run the model
-	np.savetxt(pfname, p)
-	command = 'java -cp celltemp.jar findcells.integrateTempCompCell_imi_realclean_NaKpump_rk4 cis_realclean_NaKpump.txt '+pfname+' 20 25 0.05 > sol.txt'
-	subprocess.run(command, shell=True)
-	sol = np.genfromtxt('sol.txt')
+	if pathlib.Path(f'cache/{hashname}.Na_ih.{factor}.sol.txt').exists():
+		sol = np.genfromtxt(f'cache/{hashname}.Na_ih.{factor}.sol.txt')
+	else:
+		np.savetxt(pfname, p)
+		subprocess.run(command, shell=True)
+		shutil.copy('sol.txt', f'cache/{hashname}.Na_ih.{factor}.sol.txt')
+		sol = np.genfromtxt(f'cache/{hashname}.Na_ih.{factor}.sol.txt')
 	time = np.linspace(0,20,len(sol))
 
 	# Plot the varied parameter set
 	axs[i].plot(time[time>19], sol[:,0][time>19], color='black')
-	axs[i].twinx().plot(time[time>19], sol[:,-1][time>19], color='red')
-	axs[i].twinx().plot(time[time>19], getipump(p,sol)[time>19], color='blue')
-	axs[i].plot(time[time>19], -50*np.ones(len(sol))[time>19], color='#d95f02', ls='dashed')
+	axsNa[i].plot(time[time>19], sol[:,-1][time>19], color='red')
+	axsNa[i].set_yticks([])
+	axsNa[i].plot(time[time>19], p[42]*np.ones(len(sol))[time>19], color='#d95f02', ls='dashed')
+	axsI[i].plot(time[time>19], getipump(p,sol)[time>19], color='blue')
+	axsI[i].set_yticks([])
+	#axs[i].plot(time[time>19], -50*np.ones(len(sol))[time>19], color='#d95f02', ls='dashed')
 	axs[i].tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
-	# if i != 5:
-	axs[i].set_frame_on(False)
-	# else:
-		# axs[i].set_facecolor('#1b9e7780')
+	if i != 999:
+		axs[i].set_frame_on(False)
+		axsNa[i].set_frame_on(False)
+		axsI[i].set_frame_on(False)
+	else:
+		axs[i].set_facecolor('#1b9e7780')
 	
-	if i == 11:
+	if i == 999:
 		axs[i].vlines(19.9, -50, 0, color='#808080', lw=4, zorder=10)
 		axs[i].plot(19.9, -50, 's', color='#d95f02', markeredgecolor='black', markersize=8,
 					zorder=11)
@@ -208,4 +239,6 @@ fig.savefig('varied-Na_ih-'+hashname+'.png')
 # Restore control parameter set
 p = originalp.copy()
 np.savetxt(pfname, p)
-# %%
+
+# Print time elapsed
+print(f'TIME ELAPSED: {dt.datetime.now() - starttime} h:mm:ss.ssssss')
