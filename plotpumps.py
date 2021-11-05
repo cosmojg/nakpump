@@ -114,13 +114,15 @@ p = originalp.copy()
 np.savetxt(pfname, p)
 
 #%%
-# Plot Na_is varied from -400% to 480% of control
+# Plot Na_is varied from ???% to ???% of control
 fig, axs = plt.subplots(12, sharex=True, figsize=(9,12))
 for i in range(12):
 	# Vary Na_is by specified factor
 	p = originalp.copy()
-	factor = round((i - 5) * 0.8, 1)
+	factor = round((i - 1) * 1, 2)
 	percentage = int(factor * 100)
+	if i == 0: firstper = percentage
+	if i == 11: lastper = percentage
 	p[41] = p[41] * factor
 	print(f'{p[41] = }')
 
@@ -138,7 +140,7 @@ for i in range(12):
 	axs[i].plot(time[time>19], sol[:,0][time>19], color='black')
 	axs[i].plot(time[time>19], -50*np.ones(len(sol))[time>19], color='#d95f02', ls='dashed')
 	axs[i].tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
-	if i != 5:
+	if percentage != 100:
 		axs[i].set_frame_on(False)
 	else:
 		axs[i].set_facecolor('#1b9e7780')
@@ -162,7 +164,7 @@ for i in range(12):
 	axs[i].set_ylabel(f'{percentage}%', fontsize=15, color='black')
 	axs[i].set_xlim(19,20)
 
-fig.suptitle(f'IMI-NaKpump | {pfname} | $[Na]_{{is}}$ = -400% to 480%', fontsize=15)
+fig.suptitle(f'IMI-NaKpump | {pfname} | $[Na]_{{is}}$ = {firstper}% to {lastper}%', fontsize=15)
 fig.savefig('varied-Na_is-'+hashname+'.png')
 
 # Restore control parameter set
@@ -170,7 +172,65 @@ p = originalp.copy()
 np.savetxt(pfname, p)
 
 #%%
-# Plot Na_ih varied from 6504% to 7516% of control
+# Plot Na_ih varied from ???% to ???% of control
+fig, axs = plt.subplots(12, sharex=True, figsize=(9,12))
+for i in range(12):
+	# Vary Na_ih by specified factor
+	p = originalp.copy()
+	factor = round((i - 5) * 100 + 1, 2)
+	percentage = int(factor * 100)
+	if i == 0: firstper = percentage
+	if i == 11: lastper = percentage
+	p[42] = p[42] * factor
+	print(f'{p[42] = }')
+
+	# Run the model
+	if pathlib.Path(f'cache/{hashname}.Na_ih.{factor}.sol.txt').exists():
+		sol = np.genfromtxt(f'cache/{hashname}.Na_ih.{factor}.sol.txt')
+	else:
+		np.savetxt(pfname, p)
+		subprocess.run(command, shell=True)
+		shutil.copy('sol.txt', f'cache/{hashname}.Na_ih.{factor}.sol.txt')
+		sol = np.genfromtxt(f'cache/{hashname}.Na_ih.{factor}.sol.txt')
+	time = np.linspace(0,20,len(sol))
+
+	# Plot the varied parameter set
+	axs[i].plot(time[time>19], sol[:,0][time>19], color='black')
+	axs[i].plot(time[time>19], -50*np.ones(len(sol))[time>19], color='#d95f02', ls='dashed')
+	axs[i].tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
+	if percentage != 100:
+		axs[i].set_frame_on(False)
+	else:
+		axs[i].set_facecolor('#1b9e7780')
+	
+	if i == 11:
+		axs[i].vlines(19.9, -50, 0, color='#808080', lw=4, zorder=10)
+		axs[i].plot(19.9, -50, 's', color='#d95f02', markeredgecolor='black', markersize=8,
+					zorder=11)
+		axs[i].plot(19.9, 0, 's', color='#7570b3', markeredgecolor='black', markersize=8,
+					zorder=11)
+		bboxprops = dict(boxstyle='square', facecolor='white', edgecolor='black')
+		axs[i].annotate('-50 mV', xy=(19.9, -50), xytext=(9, 0), color='#d95f02',
+						textcoords='offset points', horizontalalignment='left', weight='bold',
+						verticalalignment='center', annotation_clip=False, bbox=bboxprops)
+		axs[i].annotate('0 mV', xy=(19.9, 0), xytext=(19.5, 0), color='#7570b3',
+						textcoords='offset points', horizontalalignment='left', weight='bold',
+						verticalalignment='center', annotation_clip=False, bbox=bboxprops)
+		axs[i].tick_params(bottom=True, labelbottom=True, labelsize=15)
+		axs[i].set_xlabel('Time (s)', fontsize=15)
+
+	axs[i].set_ylabel(f'{percentage}%', fontsize=15, color='black')
+	axs[i].set_xlim(19,20)
+
+fig.suptitle(f'IMI-NaKpump | {pfname} | $[Na]_{{ih}}$ = {firstper}% to {lastper}%', fontsize=15)
+fig.savefig('varied-Na_ih-'+hashname+'.png')
+
+# Restore control parameter set
+p = originalp.copy()
+np.savetxt(pfname, p)
+
+#%%
+# Plot Na_ih varied from ???% to ???% of control, overlay with I and [Na]
 fig, axs = plt.subplots(12, sharex=True, sharey=True, figsize=(9,12))
 axsNa = [a.twinx() for a in axs]
 axsI = [a.twinx() for a in axs]
